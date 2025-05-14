@@ -433,6 +433,9 @@
       const messageError = document.getElementById('messageError');
       const notificationGrid = document.getElementById('notificationGrid');
     
+      // Track which field is currently being edited
+      let activeField = null;
+    
       // Load notifications from API
       async function loadNotifications() {
         try {
@@ -460,7 +463,7 @@
           
           // Display notifications in grid
           notifications.forEach((notification, index) => {
-            const iconType = notification.icon || 'bell'; // Default to bell if not specified
+            const iconType = notification.icon || 'bell';
             const iconClass = iconMap[iconType] || 'fas fa-bell';
             const iconColor = iconColors[iconType] || { bg: '#f0f0f0', color: '#333' };
             
@@ -501,14 +504,17 @@
         }
       }
       
-      // Input validation
-      function validateInputs() {
+      // Input validation for specific field
+      function validateInput(field, errorElement) {
+        const isValid = isValidInput(field.value.trim());
+        errorElement.style.display = isValid ? 'none' : 'block';
+        updateSendButtonState();
+      }
+      
+      // Update send button state based on both fields
+      function updateSendButtonState() {
         const titleValid = isValidInput(titleInput.value.trim());
         const messageValid = isValidInput(messageInput.value.trim());
-        
-        titleError.style.display = titleValid ? 'none' : 'block';
-        messageError.style.display = messageValid ? 'none' : 'block';
-        
         sendBtn.disabled = !(titleValid && messageValid);
       }
       
@@ -516,7 +522,7 @@
         if (!str || !str.trim()) return false;
         if (!/^[A-Z]/.test(str)) return false;
         if (/\s{2,}/.test(str)) return false;
-        return str.length <= 200; // Added max length validation
+        return str.length <= 200;
       }
       
       function cleanInput(str) {
@@ -529,7 +535,7 @@
       async function sendNotification() {
         const title = cleanInput(titleInput.value.trim());
         const message = cleanInput(messageInput.value.trim());
-        const iconType = iconInput.value || 'bell'; // Default to bell if not selected
+        const iconType = iconInput.value || 'bell';
         const now = new Date();
         const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -577,9 +583,13 @@
         }
       }
       
-      // Event listeners
-      titleInput.addEventListener('input', validateInputs);
-      messageInput.addEventListener('input', validateInputs);
+      // Event listeners with focus tracking
+      titleInput.addEventListener('focus', () => activeField = 'title');
+      messageInput.addEventListener('focus', () => activeField = 'message');
+      
+      titleInput.addEventListener('input', () => validateInput(titleInput, titleError));
+      messageInput.addEventListener('input', () => validateInput(messageInput, messageError));
+      
       sendBtn.addEventListener('click', sendNotification);
       
       // Initialize
