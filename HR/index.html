@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Notification Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #eef2ff;
+      --secondary: #3f37c9;
+      --dark: #1e1e24;
+      --gray: #6c757d;
+      --light-gray: #f8f9fa;
+      --white: #ffffff;
+      --success: #4bb543;
+      --warning: #ffcc00;
+      --danger: #ff3333;
+      --info: #17a2b8;
+      --border-radius: 12px;
+      --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.484);
+    }
+
+    /* Header Styles */
+    .app-header {
+      background: linear-gradient(135deg, #3498db, #2c3e50);
+      color: var(--white);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      margin-bottom: 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+
+
+    .app-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .app-header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Main Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    /* Form Styles */
+    .notification-form {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--box-shadow);
+      margin-bottom: 2rem;
+    }
+
+    .form-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-title i {
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: var(--transition);
+      background-color: var(--light-gray);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--white);
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+      background-color: #b8c2ff;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Dropdown Styles */
+    .select-dropdown {
+      position: relative;
+    }
+
+    .select-dropdown select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1em;
+      padding-right: 2.5rem;
+    }
+
+    /* Recent Notifications Section */
+    .recent-notifications {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--box-shadow);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: var(--primary);
+    }
+
+    .notification-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .notification-card {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+      border-left: 4px solid var(--primary);
+    }
+
+    .notification-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.25rem;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--dark);
+    }
+
+    .card-message {
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .card-date {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #d1d5db;
+    }
+
+    .empty-state p {
+      margin-bottom: 1rem;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .app-header h1 {
+        font-size: 2rem;
+      }
+      
+      .app-header p {
+        font-size: 1rem;
+      }
+      
+      .notification-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .app-header {
+        padding: 1.5rem;
+      }
+      
+      .notification-form,
+      .recent-notifications {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <h1>HR Notification Hub</h1>
+      <p>Streamline your employee communications with our powerful notification management system</p>
+    </header>
+
+    <div class="app-layout">
+      <main>
+        <section class="notification-form">
+          <h2 class="form-title"><i class="fas fa-paper-plane"></i> Create New Notification</h2>
+          <div class="form-group">
+            <label for="title">Notification Title</label>
+            <input type="text" id="title" class="form-control" placeholder="Enter notification title" maxlength="50">
+            <div id="titleError" class="error-message">Title must start with capital letter and use proper spacing</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="message">Notification Message</label>
+            <textarea id="message" class="form-control" rows="4" placeholder="Enter detailed message here..." maxlength="300"></textarea>
+            <div id="messageError" class="error-message">Message must start with capital letter and use proper spacing</div>
+          </div>
+          
+          <div class="form-group select-dropdown">
+            <label for="icon">Select Icon Type</label>
+            <select id="icon" class="form-control">
+              <option value="bell"><i class="fas fa-bell"></i> General Notification</option>
+              <option value="calendar">Calendar (Events)</option>
+              <option value="alert">Alert (Important)</option>
+              <option value="trophy">Trophy (Achievements)</option>
+              <option value="info">Info (Information)</option>
+              <option value="team">Team (Staff Updates)</option>
+              <option value="gift">Gift (Rewards)</option>
+              <option value="holiday">Holiday (Time Off)</option>
+              <option value="urgent">Urgent (Critical)</option>
+              <option value="meeting">Meeting (Schedules)</option>
+              <option value="policy">Policy (Updates)</option>
+              <option value="payroll">Payroll (Salary)</option>
+            </select>
+          </div>
+          
+          <button id="sendNotification" class="btn btn-primary" type="button" disabled>
+            <i class="fas fa-paper-plane"></i> Send Notification
+          </button>
+        </section>
+
+        <section class="recent-notifications">
+          <h2 class="section-title"><i class="fas fa-history"></i> Recent Notifications</h2>
+          <div class="notification-grid" id="notificationGrid">
+            <!-- Notification cards will be inserted here -->
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Icon color mapping
+      const iconColors = {
+        bell: { bg: '#FFF3CD', color: '#FFC107' },
+        calendar: { bg: '#E7F6FD', color: '#0D6EFD' },
+        alert: { bg: '#F8D7DA', color: '#DC3545' },
+        trophy: { bg: '#FFF8E1', color: '#FFA000' },
+        info: { bg: '#E7F6FD', color: '#0DCAF0' },
+        team: { bg: '#E8F5E9', color: '#4CAF50' },
+        gift: { bg: '#FCE4EC', color: '#EC407A' },
+        holiday: { bg: '#E3F2FD', color: '#2196F3' },
+        urgent: { bg: '#FFEBEE', color: '#F44336' },
+        meeting: { bg: '#EDE7F6', color: '#673AB7' },
+        policy: { bg: '#E0F7FA', color: '#00BCD4' },
+        payroll: { bg: '#F1F8E9', color: '#7CB342' }
+      };
+    
+      // Icon class mapping
+      const iconMap = {
+        bell: 'fas fa-bell',
+        calendar: 'fas fa-calendar-alt',
+        alert: 'fas fa-exclamation-circle',
+        trophy: 'fas fa-trophy',
+        info: 'fas fa-info-circle',
+        team: 'fas fa-users',
+        gift: 'fas fa-gift',
+        holiday: 'fas fa-umbrella-beach',
+        urgent: 'fas fa-fire',
+        meeting: 'fas fa-handshake',
+        policy: 'fas fa-file-alt',
+        payroll: 'fas fa-money-bill-wave'
+      };
+    
+      // DOM elements
+      const titleInput = document.getElementById('title');
+      const messageInput = document.getElementById('message');
+      const iconInput = document.getElementById('icon');
+      const sendBtn = document.getElementById('sendNotification');
+      const titleError = document.getElementById('titleError');
+      const messageError = document.getElementById('messageError');
+      const notificationGrid = document.getElementById('notificationGrid');
+    
+      // Load notifications from API
+      async function loadNotifications() {
+        try {
+          const response = await fetch('http://localhost:3000/api/notifications');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const notifications = await response.json();
+          
+          // Clear existing content
+          notificationGrid.innerHTML = '';
+          
+          if (notifications.length === 0) {
+            notificationGrid.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-bell-slash"></i>
+                <h3>No Notifications Yet</h3>
+                <p>Create your first notification to get started</p>
+              </div>
+            `;
+            return;
+          }
+          
+          // Display notifications in grid
+          notifications.forEach((notification, index) => {
+            const iconType = notification.icon || 'bell'; // Default to bell if not specified
+            const iconClass = iconMap[iconType] || 'fas fa-bell';
+            const iconColor = iconColors[iconType] || { bg: '#f0f0f0', color: '#333' };
+            
+            const card = document.createElement('div');
+            card.className = 'notification-card fade-in';
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.style.borderLeftColor = iconColor.color;
+            card.innerHTML = `
+              <div class="card-header">
+                <div class="card-icon" style="background-color: ${iconColor.bg}; color: ${iconColor.color}">
+                  <i class="${iconClass}"></i>
+                </div>
+                <div class="card-title">${notification.title || 'No Title'}</div>
+              </div>
+              <div class="card-message">${notification.message || 'No Message'}</div>
+              <div class="card-footer">
+                <div class="card-date">
+                  <i class="far fa-calendar-alt"></i>
+                  ${notification.date || 'N/A'}
+                </div>
+                <div class="card-time">
+                  <i class="far fa-clock"></i>
+                  ${notification.time || 'N/A'}
+                </div>
+              </div>
+            `;
+            notificationGrid.appendChild(card);
+          });
+        } catch (err) {
+          console.error('Error loading notifications:', err);
+          notificationGrid.innerHTML = `
+            <div class="empty-state error">
+              <i class="fas fa-exclamation-circle"></i>
+              <h3>Error Loading Notifications</h3>
+              <p>${err.message || 'Please try again later'}</p>
+            </div>
+          `;
+        }
+      }
+      
+      // Input validation
+      function validateInputs() {
+        const titleValid = isValidInput(titleInput.value.trim());
+        const messageValid = isValidInput(messageInput.value.trim());
+        
+        titleError.style.display = titleValid ? 'none' : 'block';
+        messageError.style.display = messageValid ? 'none' : 'block';
+        
+        sendBtn.disabled = !(titleValid && messageValid);
+      }
+      
+      function isValidInput(str) {
+        if (!str || !str.trim()) return false;
+        if (!/^[A-Z]/.test(str)) return false;
+        if (/\s{2,}/.test(str)) return false;
+        return str.length <= 200; // Added max length validation
+      }
+      
+      function cleanInput(str) {
+        str = str.charAt(0).toUpperCase() + str.slice(1);
+        str = str.replace(/\s{2,}/g, ' ');
+        return str;
+      }
+      
+      // Send notification
+      async function sendNotification() {
+        const title = cleanInput(titleInput.value.trim());
+        const message = cleanInput(messageInput.value.trim());
+        const iconType = iconInput.value || 'bell'; // Default to bell if not selected
+        const now = new Date();
+        const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        
+        try {
+          const response = await fetch('http://localhost:3000/api/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+              title, 
+              message, 
+              icon: iconType, 
+              date, 
+              time 
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          // Reset form
+          titleInput.value = '';
+          messageInput.value = '';
+          sendBtn.disabled = true;
+          
+          // Show success feedback
+          const originalText = sendBtn.innerHTML;
+          const originalBg = sendBtn.style.backgroundColor;
+          sendBtn.innerHTML = '<i class="fas fa-check"></i> Sent Successfully!';
+          sendBtn.style.backgroundColor = '#4bb543';
+          
+          setTimeout(() => {
+            sendBtn.innerHTML = originalText;
+            sendBtn.style.backgroundColor = originalBg;
+          }, 2000);
+          
+          // Reload notifications
+          await loadNotifications();
+        } catch (err) {
+          console.error('Error sending notification:', err);
+          alert(`Failed to send notification: ${err.message}`);
+        }
+      }
+      
+      // Event listeners
+      titleInput.addEventListener('input', validateInputs);
+      messageInput.addEventListener('input', validateInputs);
+      sendBtn.addEventListener('click', sendNotification);
+      
+      // Initialize
+      loadNotifications();
+    });
+    </script>
+</body>
+</html>

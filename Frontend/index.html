@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Notifications</title>
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 10px;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .quote {
+            color: white;
+            margin-top: 0;
+        }
+
+        .notifications-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .notification-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+            border-left: 4px solid #ccc; /* Default border color, overridden by iconColor */
+        }
+
+        .notification-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            color: #3498db;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .card-message {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+
+        .card-footer i {
+            margin-right: 5px;
+        }
+
+        .empty-state {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            color: #95a5a6;
+            margin-bottom: 10px;
+        }
+
+        .empty-state h3 {
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .empty-state p {
+            color: #555;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .notifications-container {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 style="font-weight: bold; font-size: 1.5rem;">Employee Notifications</h1>
+        <p class="quote">"Stay informed, stay ahead. Timely communication is the bridge between confusion and clarity."</p>
+    </header>
+    <div class="notifications-container">
+        <div class="notification-grid" id="notificationGrid" style="           display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;">
+            <!-- Notifications will be dynamically added here -->
+        </div>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Icon color mapping
+  const iconColors = {
+    bell: { bg: '#FFF3CD', color: '#FFC107' },
+    calendar: { bg: '#E7F6FD', color: '#0D6EFD' },
+    alert: { bg: '#F8D7DA', color: '#DC3545' },
+    trophy: { bg: '#FFF8E1', color: '#FFA000' },
+    info: { bg: '#E7F6FD', color: '#0DCAF0' },
+    team: { bg: '#E8F5E9', color: '#4CAF50' },
+    gift: { bg: '#FCE4EC', color: '#EC407A' },
+    holiday: { bg: '#E3F2FD', color: '#2196F3' },
+    urgent: { bg: '#FFEBEE', color: '#F44336' },
+    meeting: { bg: '#EDE7F6', color: '#673AB7' },
+    policy: { bg: '#E0F7FA', color: '#00BCD4' },
+    payroll: { bg: '#F1F8E9', color: '#7CB342' }
+  };
+
+  // Icon class mapping
+  const iconMap = {
+    bell: 'fas fa-bell',
+    calendar: 'fas fa-calendar-alt',
+    alert: 'fas fa-exclamation-circle',
+    trophy: 'fas fa-trophy',
+    info: 'fas fa-info-circle',
+    team: 'fas fa-users',
+    gift: 'fas fa-gift',
+    holiday: 'fas fa-umbrella-beach',
+    urgent: 'fas fa-fire',
+    meeting: 'fas fa-handshake',
+    policy: 'fas fa-file-alt',
+    payroll: 'fas fa-money-bill-wave'
+  };
+
+  const notificationGrid = document.getElementById('notificationGrid');
+
+  // Load notifications from API
+  async function loadNotifications() {
+    try {
+      const response = await fetch('http://localhost:3000/api/notifications');
+      const notifications = await response.json();
+
+      // Clear existing content
+      notificationGrid.innerHTML = '';
+
+      if (notifications.length === 0) {
+        notificationGrid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <h3>No Notifications Yet</h3>
+            <p>No notifications available at this time.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Display notifications in grid
+      notifications.forEach((notification, index) => {
+        const iconType = notification.icon;
+        const iconClass = iconMap[iconType] || 'fas fa-bell';
+        const iconColor = iconColors[iconType] || { bg: '#f0f0f0', color: '#333' };
+
+        const card = document.createElement('div');
+        card.className = 'notification-card';
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.style.borderLeftColor = iconColor.color;
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="card-icon" style="background-color: ${iconColor.bg}; color: ${iconColor.color}">
+              <i class="${iconClass}"></i>
+            </div>
+            <div class="card-title">${notification.title}</div>
+          </div>
+          <div class="card-message">${notification.message}</div>
+          <div class="card-footer">
+            <div class="card-date">
+              <i class="far fa-calendar-alt"></i>
+              ${notification.date}
+            </div>
+            <div class="card-time">
+              <i class="far fa-clock"></i>
+              ${notification.time || 'N/A'}
+            </div>
+          </div>
+        `;
+        notificationGrid.appendChild(card);
+      });
+    } catch (err) {
+      console.error('Error loading notifications:', err);
+      notificationGrid.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-exclamation-circle"></i>
+          <h3>Error Loading Notifications</h3>
+          <p>Please try again later</p>
+        </div>
+      `;
+    }
+  }
+
+  // Initialize
+  loadNotifications();
+});
+    </script>
+</body>
+</html>
