@@ -56,8 +56,6 @@
       overflow: hidden;
     }
 
-
-
     .app-header h1 {
       font-size: 2.5rem;
       font-weight: 700;
@@ -198,7 +196,7 @@
       background: var(--white);
       border-radius: var(--border-radius);
       padding: 2rem;
-      box-shadow: var(--box-shadow);
+      box-shadow: var(--box影子);
     }
 
     .section-title {
@@ -256,11 +254,19 @@
       font-weight: 600;
       font-size: 1.1rem;
       color: var(--dark);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: calc(100% - 60px); /* Account for icon (48px) and margin (12px) */
     }
 
     .card-message {
       color: var(--gray);
       margin-bottom: 1rem;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      max-height: 100px; /* Limit height to prevent excessive growth */
+      overflow-y: auto; /* Add scrollbar for long messages */
     }
 
     .card-footer {
@@ -349,13 +355,13 @@
           <div class="form-group">
             <label for="title">Notification Title</label>
             <input type="text" id="title" class="form-control" placeholder="Enter notification title" maxlength="50">
-            <div id="titleError" class="error-message">Title must start with capital letter and use proper spacing</div>
+            <div id="titleError" class="error-message"></div>
           </div>
           
           <div class="form-group">
             <label for="message">Notification Message</label>
             <textarea id="message" class="form-control" rows="4" placeholder="Enter detailed message here..." maxlength="300"></textarea>
-            <div id="messageError" class="error-message">Message must start with capital letter and use proper spacing</div>
+            <div id="messageError" class="error-message"></div>
           </div>
           
           <div class="form-group select-dropdown">
@@ -433,8 +439,9 @@
       const messageError = document.getElementById('messageError');
       const notificationGrid = document.getElementById('notificationGrid');
     
-      // Track which field is currently being edited
-      let activeField = null;
+      // Track interaction state
+      let titleTouched = false;
+      let messageTouched = false;
     
       // Load notifications from API
       async function loadNotifications() {
@@ -504,36 +511,80 @@
         }
       }
       
-      // Input validation for specific field
-      function validateInput(field, errorElement) {
-        const isValid = isValidInput(field.value.trim());
-        errorElement.style.display = isValid ? 'none' : 'block';
-        updateSendButtonState();
+      // Title validation
+      function isValidTitle(str) {
+        if (!str || !str.trim()) {
+          titleError.textContent = 'Title is required.';
+          return false;
+        }
+        
+        if (!/^[A-Z]/.test(str)) {
+          titleError.textContent = 'Title must start with a capital letter.';
+          return false;
+        }
+        
+        if (!/^[A-Za-z0-9\s.,!?'"-]+$/.test(str)) {
+          titleError.textContent = 'Title can only contain letters, numbers, spaces, and common punctuation (.,!?\'"-).';
+          return false;
+        }
+        
+        if (/\s{2,}/.test(str)) {
+          titleError.textContent = 'Title cannot contain consecutive spaces.';
+          return false;
+        }
+        
+        return true;
       }
       
-      // Update send button state based on both fields
-      function updateSendButtonState() {
-        const titleValid = isValidInput(titleInput.value.trim());
-        const messageValid = isValidInput(messageInput.value.trim());
+      // Message validation
+      function isValidMessage(str) {
+        if (!str || !str.trim()) {
+          messageError.textContent = 'Message is required.';
+          return false;
+        }
+        
+        if (!/^[A-Z]/.test(str)) {
+          messageError.textContent = 'Message must start with a capital letter.';
+          return false;
+        }
+        
+        if (/\s{2,}/.test(str)) {
+          messageError.textContent = 'Message cannot contain consecutive spaces.';
+          return false;
+        }
+        
+        return true;
+      }
+      
+      // Validate inputs
+      function validateInputs() {
+        const titleValid = isValidTitle(titleInput.value.trim());
+        const messageValid = isValidMessage(messageInput.value.trim());
+        
+        titleError.style.display = titleTouched && !titleValid ? 'block' : 'none';
+        messageError.style.display = messageTouched && !messageValid ? 'block' : 'none';
+        
         sendBtn.disabled = !(titleValid && messageValid);
       }
       
-      function isValidInput(str) {
-        if (!str || !str.trim()) return false;
-        if (!/^[A-Z]/.test(str)) return false;
-        if (/\s{2,}/.test(str)) return false;
-        return str.length <= 200;
-      }
-      
-      function cleanInput(str) {
+      function cleanInput(str, isTitle = false) {
         str = str.charAt(0).toUpperCase() + str.slice(1);
         str = str.replace(/\s{2,}/g, ' ');
+        if (isTitle) {
+          str = str.replace(/[^A-Za-z0-9\s.,!?'"-]/g, '');
+        }
         return str;
       }
       
       // Send notification
       async function sendNotification() {
-        const title = cleanInput(titleInput.value.trim());
+        titleTouched = true;
+        messageTouched = true;
+        validateInputs();
+        
+        if (sendBtn.disabled) return;
+        
+        const title = cleanInput(titleInput.value.trim(), true);
         const message = cleanInput(messageInput.value.trim());
         const iconType = iconInput.value || 'bell';
         const now = new Date();
@@ -562,6 +613,8 @@
           // Reset form
           titleInput.value = '';
           messageInput.value = '';
+          titleTouched = false;
+          messageTouched = false;
           sendBtn.disabled = true;
           
           // Show success feedback
@@ -583,18 +636,39 @@
         }
       }
       
-      // Event listeners with focus tracking
-      titleInput.addEventListener('focus', () => activeField = 'title');
-      messageInput.addEventListener('focus', () => activeField = 'message');
+      // Event listeners
+      titleInput.addEventListener('input', function() {
+        titleTouched = true;
+        if (this.value.length === 1) {
+          this.value = this.value.charAt(0).toUpperCase();
+        }
+        this.value = this.value.replace(/[^A-Za-z0-9\s.,!?'"-]/g, '');
+        validateInputs();
+      });
       
-      titleInput.addEventListener('input', () => validateInput(titleInput, titleError));
-      messageInput.addEventListener('input', () => validateInput(messageInput, messageError));
+      messageInput.addEventListener('input', function() {
+        messageTouched = true;
+        if (this.value.length === 1) {
+          this.value = this.value.charAt(0).toUpperCase();
+        }
+        validateInputs();
+      });
+      
+      titleInput.addEventListener('blur', function() {
+        titleTouched = true;
+        validateInputs();
+      });
+      
+      messageInput.addEventListener('blur', function() {
+        messageTouched = true;
+        validateInputs();
+      });
       
       sendBtn.addEventListener('click', sendNotification);
       
       // Initialize
       loadNotifications();
     });
-    </script>
+  </script>
 </body>
 </html>

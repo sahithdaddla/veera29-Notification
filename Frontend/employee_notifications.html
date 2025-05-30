@@ -11,7 +11,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f5f7fa;
+            background-color: white;
             margin: 0;
             padding: 20px;
         }
@@ -20,7 +20,7 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 10px;
-            background: linear-gradient(135deg, #2c3e50, #3498db);
+            background: linear-gradient(135deg, #8e06d7, #0995f1);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -82,11 +82,19 @@
             font-size: 1.2rem;
             font-weight: bold;
             text-align: left;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: calc(100% - 50px); /* Account for icon and margin */
         }
 
         .card-message {
             color: #555;
             margin-bottom: 15px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            max-height: 100px; /* Limit height to prevent excessive growth */
+            overflow-y: auto; /* Add scrollbar for long messages */
         }
 
         .card-footer {
@@ -153,14 +161,8 @@
         <h1 style="font-weight: bold; font-size: 1.5rem;">Employee Notifications</h1>
         <p class="quote">"Stay informed, stay ahead. Timely communication is the bridge between confusion and clarity."</p>
     </header>
-    <div class="notifications-container">
-        <div class="notification-grid" id="notificationGrid" style="           display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-        max-width: 1200px;
-        margin: 0 auto;">
-            <!-- Notifications will be dynamically added here -->
-        </div>
+    <div class="notifications-container" id="notificationGrid">
+        <!-- Notifications will be dynamically added here -->
     </div>
 
     <script>
