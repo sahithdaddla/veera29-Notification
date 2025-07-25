@@ -446,7 +446,7 @@
       // Load notifications from API
       async function loadNotifications() {
         try {
-          const response = await fetch('http://51.20.18.163:3088/api/notifications');
+          const response = await fetch('http://16.171.159.19:3088/api/notifications');
           
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -592,7 +592,7 @@
         const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         
         try {
-          const response = await fetch('http://51.20.18.163:3088/api/notifications', {
+          const response = await fetch('http://16.171.159.19:3088/api/notifications', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
