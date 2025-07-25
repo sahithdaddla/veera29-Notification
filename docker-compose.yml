@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: notification_pg
+    ports:
+      - "5515:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: notifications
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - notify-net
+
+  backend:
+    build: ./Backend
+    container_name: notification_backend
+    ports:
+      - "3088:3088"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin123
+      DB_NAME: notifications
+      DB_HOST: postgres
+      DB_PORT: 5432
+    depends_on:
+      - postgres
+    networks:
+      - notify-net
+
+  frontend:
+    build: ./Frontend
+    container_name: notification_frontend
+    ports:
+      - "8314:80"
+    depends_on:
+      - backend
+    networks:
+      - notify-net
+
+  hr:
+    build: ./HR
+    container_name: notification_hr
+    ports:
+      - "8315:80"
+    depends_on:
+      - backend
+    networks:
+      - notify-net
+
+volumes:
+  postgres_data:
+
+networks:
+  notify-net:
+
